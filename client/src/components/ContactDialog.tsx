@@ -33,15 +33,31 @@ export default function ContactDialog({ open, onOpenChange }: ContactDialogProps
     message: '',
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Contact form submitted:', formData);
-    toast({
-      title: 'Message Sent!',
-      description: "We'll get back to you within 24 hours.",
-    });
-    onOpenChange(false);
-    setFormData({ name: '', email: '', service: '', message: '' });
+    
+    try {
+      const response = await fetch('/api/contact-messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) throw new Error('Failed to send message');
+
+      toast({
+        title: 'Message Sent!',
+        description: "We'll get back to you within 24 hours.",
+      });
+      onOpenChange(false);
+      setFormData({ name: '', email: '', service: '', message: '' });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to send message. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
@@ -90,7 +106,7 @@ export default function ContactDialog({ open, onOpenChange }: ContactDialogProps
               <SelectTrigger data-testid="select-service">
                 <SelectValue placeholder="Select a service" />
               </SelectTrigger>
-              <SelectContent className="bg-popover text-popover-foreground">
+              <SelectContent>
                 <SelectItem value="landing-page">Landing Page</SelectItem>
                 <SelectItem value="ecommerce">E-Commerce Website</SelectItem>
                 <SelectItem value="corporate">Corporate Website</SelectItem>

@@ -1,4 +1,6 @@
+import { useQuery } from '@tanstack/react-query';
 import PortfolioCard, { type Project } from './PortfolioCard';
+import { Skeleton } from '@/components/ui/skeleton';
 import ecommerceImg from '@assets/generated_images/E-commerce_website_portfolio_project_d9fee8dd.png';
 import dashboardImg from '@assets/generated_images/Business_dashboard_portfolio_project_e6fafc6a.png';
 import restaurantImg from '@assets/generated_images/Restaurant_website_portfolio_project_b5b3c229.png';
@@ -6,8 +8,17 @@ import realEstateImg from '@assets/generated_images/Real_estate_website_portfoli
 import fitnessImg from '@assets/generated_images/Fitness_app_portfolio_project_c25ee79b.png';
 import corporateImg from '@assets/generated_images/Corporate_website_portfolio_project_0a20ad02.png';
 
-export default function PortfolioSection() {
-  const projects: Project[] = [
+interface PortfolioProject {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  imageUrl: string;
+  createdAt?: Date | null;
+}
+
+// todo: remove mock functionality - fallback data for demo
+const mockProjects: Project[] = [
     {
       id: 'ecommerce',
       title: 'Modern E-Commerce Store',
@@ -52,6 +63,16 @@ export default function PortfolioSection() {
     },
   ];
 
+export default function PortfolioSection() {
+  const { data: portfolioProjects, isLoading } = useQuery<PortfolioProject[]>({
+    queryKey: ['/api/portfolio'],
+  });
+
+  // todo: remove mock functionality - convert API data to Project format or use fallback
+  const displayProjects: Project[] = portfolioProjects && portfolioProjects.length > 0
+    ? portfolioProjects.map(p => ({ ...p, image: p.imageUrl }))
+    : mockProjects;
+
   return (
     <section id="portfolio" className="py-20 bg-accent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -64,11 +85,19 @@ export default function PortfolioSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map((project) => (
-            <PortfolioCard key={project.id} project={project} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[...Array(6)].map((_, i) => (
+              <Skeleton key={i} className="h-[300px] rounded-lg" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {displayProjects.map((project) => (
+              <PortfolioCard key={project.id} project={project} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

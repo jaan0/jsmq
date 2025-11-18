@@ -1,12 +1,23 @@
+import { useQuery } from '@tanstack/react-query';
 import ServiceCard, { type Service } from './ServiceCard';
 import { Code, ShoppingCart, Building2, Smartphone, Palette, Zap } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface ServicesSectionProps {
   onPurchaseClick: (service: Service) => void;
 }
 
-export default function ServicesSection({ onPurchaseClick }: ServicesSectionProps) {
-  const services: Service[] = [
+const iconMap: Record<string, React.ReactNode> = {
+  code: <Code className="w-6 h-6" />,
+  'shopping-cart': <ShoppingCart className="w-6 h-6" />,
+  building: <Building2 className="w-6 h-6" />,
+  smartphone: <Smartphone className="w-6 h-6" />,
+  palette: <Palette className="w-6 h-6" />,
+  zap: <Zap className="w-6 h-6" />,
+};
+
+// todo: remove mock functionality - fallback data for demo
+const mockServices: Service[] = [
     {
       id: 'landing-page',
       title: 'Landing Page',
@@ -96,6 +107,21 @@ export default function ServicesSection({ onPurchaseClick }: ServicesSectionProp
     },
   ];
 
+export default function ServicesSection({ onPurchaseClick }: ServicesSectionProps) {
+  const { data: apiServices, isLoading } = useQuery<Service[]>({
+    queryKey: ['/api/services'],
+  });
+
+  // todo: remove mock functionality - use fallback data if API fails
+  const displayServices = apiServices && apiServices.length > 0 
+    ? apiServices.map(service => ({
+        ...service,
+        icon: typeof service.icon === 'string' 
+          ? (iconMap[service.icon] || iconMap.code)
+          : service.icon
+      }))
+    : mockServices;
+
   return (
     <section id="services" className="py-20 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -108,15 +134,23 @@ export default function ServicesSection({ onPurchaseClick }: ServicesSectionProp
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {services.map((service) => (
-            <ServiceCard
-              key={service.id}
-              service={service}
-              onPurchaseClick={onPurchaseClick}
-            />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[...Array(6)].map((_, i) => (
+              <Skeleton key={i} className="h-[400px] rounded-lg" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {displayServices.map((service) => (
+              <ServiceCard
+                key={service.id}
+                service={service}
+                onPurchaseClick={onPurchaseClick}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

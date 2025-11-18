@@ -55,7 +55,7 @@ export default function PaymentDialog({ open, onOpenChange, service }: PaymentDi
     },
   ];
 
-  const handleProceed = () => {
+  const handleProceed = async () => {
     if (!selectedMethod) {
       toast({
         title: 'Select Payment Method',
@@ -65,16 +65,38 @@ export default function PaymentDialog({ open, onOpenChange, service }: PaymentDi
       return;
     }
 
-    console.log('Order placed:', { service, customerInfo, paymentMethod: selectedMethod });
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          serviceId: service.id,
+          serviceTitle: service.title,
+          servicePrice: service.price,
+          customerName: customerInfo.name,
+          customerEmail: customerInfo.email,
+          customerPhone: customerInfo.phone,
+          paymentMethod: selectedMethod,
+        }),
+      });
 
-    toast({
-      title: 'Order Placed Successfully!',
-      description: `We'll send payment instructions to ${customerInfo.email}`,
-    });
+      if (!response.ok) throw new Error('Failed to create order');
 
-    onOpenChange(false);
-    setSelectedMethod(null);
-    setCustomerInfo({ name: '', email: '', phone: '' });
+      toast({
+        title: 'Order Placed Successfully!',
+        description: `We'll send payment instructions to ${customerInfo.email}`,
+      });
+
+      onOpenChange(false);
+      setSelectedMethod(null);
+      setCustomerInfo({ name: '', email: '', phone: '' });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to place order. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
