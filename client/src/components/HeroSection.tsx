@@ -35,7 +35,7 @@ export default function HeroSection({ onGetStartedClick, onViewServicesClick }: 
           </span>
         </div>
 
-        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
+        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white mb-8 leading-tight">
           Transform Your Vision Into
           <br />
           <span className="bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">
@@ -43,7 +43,7 @@ export default function HeroSection({ onGetStartedClick, onViewServicesClick }: 
           </span>
         </h1>
 
-        <p className="text-lg sm:text-xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed">
+        <p className="text-xl sm:text-2xl text-white/90 mb-10 max-w-3xl mx-auto leading-relaxed">
           Professional web development services delivering modern, futuristic websites that drive results. 
           From e-commerce to corporate solutions, we build digital experiences that captivate and convert.
         </p>

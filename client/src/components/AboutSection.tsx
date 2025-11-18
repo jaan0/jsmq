@@ -30,10 +30,10 @@ export default function AboutSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-8">
               About JSMQ
             </h2>
-            <div className="space-y-4 text-lg text-foreground/80 leading-relaxed">
+            <div className="space-y-5 text-xl text-foreground/80 leading-relaxed">
               <p>
                 JSMQ is a leading web development agency based in Pakistan, specializing in creating 
                 modern, futuristic digital experiences that drive results for businesses worldwide.

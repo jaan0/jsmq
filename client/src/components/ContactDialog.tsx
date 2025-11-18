@@ -90,7 +90,7 @@ export default function ContactDialog({ open, onOpenChange }: ContactDialogProps
               <SelectTrigger data-testid="select-service">
                 <SelectValue placeholder="Select a service" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-popover text-popover-foreground">
                 <SelectItem value="landing-page">Landing Page</SelectItem>
                 <SelectItem value="ecommerce">E-Commerce Website</SelectItem>
                 <SelectItem value="corporate">Corporate Website</SelectItem>
