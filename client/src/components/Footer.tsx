@@ -1,4 +1,4 @@
-import { SiPaypal, SiFacebook, SiX, SiLinkedin, SiInstagram } from 'react-icons/si';
+import { SiFacebook, SiX, SiLinkedin, SiInstagram } from 'react-icons/si';
 import { Building2, Wallet, CreditCard } from 'lucide-react';
 
 interface FooterProps {
@@ -117,10 +117,6 @@ export default function Footer({ onContactClick }: FooterProps) {
           <div>
             <h3 className="font-semibold mb-4">Payment Methods</h3>
             <div className="space-y-3">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <SiPaypal className="w-5 h-5 text-primary" />
-                <span>PayPal</span>
-              </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Building2 className="w-5 h-5 text-primary" />
                 <span>Bank Transfer</span>

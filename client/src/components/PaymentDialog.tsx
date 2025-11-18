@@ -13,7 +13,6 @@ import { Separator } from '@/components/ui/separator';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { CreditCard, Building2, Wallet, Check } from 'lucide-react';
-import { SiPaypal } from 'react-icons/si';
 import type { Service } from './ServiceCard';
 
 interface PaymentDialogProps {
@@ -22,7 +21,7 @@ interface PaymentDialogProps {
   service: Service | null;
 }
 
-type PaymentMethod = 'paypal' | 'bank' | 'nayapay' | 'sadapay';
+type PaymentMethod = 'bank' | 'nayapay' | 'sadapay';
 
 export default function PaymentDialog({ open, onOpenChange, service }: PaymentDialogProps) {
   const { toast } = useToast();
@@ -36,12 +35,6 @@ export default function PaymentDialog({ open, onOpenChange, service }: PaymentDi
   if (!service) return null;
 
   const paymentMethods = [
-    {
-      id: 'paypal' as PaymentMethod,
-      name: 'PayPal',
-      icon: <SiPaypal className="w-6 h-6" />,
-      description: 'Pay securely with PayPal',
-    },
     {
       id: 'bank' as PaymentMethod,
       name: 'Bank Transfer',
@@ -188,9 +181,6 @@ export default function PaymentDialog({ open, onOpenChange, service }: PaymentDi
           {selectedMethod && (
             <Card className="p-4 bg-accent">
               <p className="text-sm">
-                {selectedMethod === 'paypal' && (
-                  <span>You'll be redirected to PayPal to complete your payment securely.</span>
-                )}
                 {selectedMethod === 'bank' && (
                   <span>Bank transfer details will be sent to your email. Please complete the transfer and send proof of payment.</span>
                 )}
