@@ -17,6 +17,7 @@ export const services = pgTable("services", {
   features: text("features").array().notNull(),
   badge: text("badge"),
   icon: text("icon").notNull(),
+  imageUrl: text("image_url"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -26,6 +27,7 @@ export const portfolioProjects = pgTable("portfolio_projects", {
   category: text("category").notNull(),
   description: text("description").notNull(),
   imageUrl: text("image_url").notNull(),
+  projectUrl: text("project_url"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

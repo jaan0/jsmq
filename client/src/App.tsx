@@ -3,8 +3,9 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Home from "@/pages/Home";
+import Landing from "@/pages/Landing";
 import AdminLogin from "@/pages/AdminLogin";
+import AdminDashboard from "@/pages/AdminDashboard";
 import AdminOrders from "@/pages/AdminOrders";
 import AdminServices from "@/pages/AdminServices";
 import AdminPortfolio from "@/pages/AdminPortfolio";
@@ -14,12 +15,13 @@ import NotFound from "@/pages/not-found";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/admin/login" component={AdminLogin} />
-      <Route path="/admin/orders" component={AdminOrders} />
-      <Route path="/admin/services" component={AdminServices} />
-      <Route path="/admin/portfolio" component={AdminPortfolio} />
-      <Route path="/admin/messages" component={AdminMessages} />
+      <Route path="/" component={Landing} />
+      <Route path="/aj-admin/login" component={AdminLogin} />
+      <Route path="/aj-admin" component={AdminDashboard} />
+      <Route path="/aj-admin/orders" component={AdminOrders} />
+      <Route path="/aj-admin/services" component={AdminServices} />
+      <Route path="/aj-admin/portfolio" component={AdminPortfolio} />
+      <Route path="/aj-admin/messages" component={AdminMessages} />
       <Route component={NotFound} />
     </Switch>
   );

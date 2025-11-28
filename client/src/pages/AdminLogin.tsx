@@ -18,7 +18,7 @@ export default function AdminLogin() {
     // For MVP demo: username: admin, password: admin123
     if (credentials.username === 'admin' && credentials.password === 'admin123') {
       localStorage.setItem('admin_logged_in', 'true');
-      setLocation('/admin/orders');
+      setLocation('/aj-admin/orders');
       toast({
         title: 'Login Successful',
         description: 'Welcome to the admin dashboard',

@@ -1,7 +1,8 @@
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check } from 'lucide-react';
+import { formatPrice } from '@/lib/formatPrice';
 
 export interface Service {
   id: string;
@@ -11,6 +12,7 @@ export interface Service {
   features: string[];
   badge?: string;
   icon: React.ReactNode;
+  imageUrl?: string | null;
 }
 
 interface ServiceCardProps {
@@ -20,12 +22,12 @@ interface ServiceCardProps {
 
 export default function ServiceCard({ service, onPurchaseClick }: ServiceCardProps) {
   return (
-    <Card className="relative hover-elevate active-elevate-2 transition-all duration-300 hover:-translate-y-2 group overflow-visible">
+    <Card className="relative hover-elevate active-elevate-2 transition-all duration-500 hover:-translate-y-3 group overflow-visible h-full flex flex-col will-change-transform hover:shadow-2xl">
       {service.badge && (
         <div className="absolute -top-3 right-4 z-10">
           <Badge
             variant="default"
-            className="bg-gradient-to-r from-primary to-ring text-white border-0 px-3 py-1"
+            className="bg-gradient-to-r from-primary to-primary/80 text-white border-0 px-3 py-1"
             data-testid={`badge-${service.id}`}
           >
             {service.badge}
@@ -33,8 +35,18 @@ export default function ServiceCard({ service, onPurchaseClick }: ServiceCardPro
         </div>
       )}
 
+      {service.imageUrl && (
+        <div className="h-40 w-full overflow-hidden rounded-t-xl">
+          <img
+            src={service.imageUrl}
+            alt={`${service.title} preview`}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          />
+        </div>
+      )}
+
       <CardHeader className="space-y-4">
-        <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-ring/20 rounded-lg flex items-center justify-center text-primary">
+        <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/10 rounded-lg flex items-center justify-center text-primary transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
           {service.icon}
         </div>
         <div>
@@ -50,11 +62,9 @@ export default function ServiceCard({ service, onPurchaseClick }: ServiceCardPro
       <CardContent className="space-y-4">
         <div className="flex items-baseline gap-1">
           <span className="text-3xl font-bold text-primary" data-testid={`price-${service.id}`}>
-            {service.price}
+            {formatPrice(service.price)}
           </span>
-        </div>
-
-        <ul className="space-y-2">
+        </div>        <ul className="space-y-2">
           {service.features.map((feature, index) => (
             <li key={index} className="flex items-start gap-2 text-sm">
               <Check className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
@@ -64,10 +74,10 @@ export default function ServiceCard({ service, onPurchaseClick }: ServiceCardPro
         </ul>
       </CardContent>
 
-      <CardFooter>
+      <CardFooter className="mt-auto">
         <Button
           onClick={() => onPurchaseClick(service)}
-          className="w-full"
+          className="w-full transition-all duration-300 hover:scale-105"
           variant="default"
           data-testid={`button-purchase-${service.id}`}
         >

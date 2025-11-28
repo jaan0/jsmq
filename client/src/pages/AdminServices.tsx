@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient, apiRequest } from '@/lib/queryClient';
+import { uploadFileToCloudinary } from '@/lib/upload';
 import AdminLayout from '@/components/AdminLayout';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,7 @@ interface Service {
   features: string[];
   badge: string | null;
   icon: string;
+  imageUrl?: string | null;
 }
 
 type ServiceFormData = {
@@ -30,6 +32,7 @@ type ServiceFormData = {
   features: string;
   badge: string;
   icon: string;
+  imageUrl: string;
 };
 
 export default function AdminServices() {
@@ -43,25 +46,25 @@ export default function AdminServices() {
     features: '',
     badge: '',
     icon: 'code',
+    imageUrl: '',
   });
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const { data: services, isLoading } = useQuery<Service[]>({
     queryKey: ['/api/services'],
   });
 
   const resetForm = () => {
-    setFormData({ title: '', description: '', price: '', features: '', badge: '', icon: 'code' });
+    setFormData({ title: '', description: '', price: '', features: '', badge: '', icon: 'code', imageUrl: '' });
   };
 
   const createMutation = useMutation({
     mutationFn: async (data: ServiceFormData) => {
-      return apiRequest('/api/services', {
-        method: 'POST',
-        body: JSON.stringify({
-          ...data,
-          features: data.features.split('\n').filter(f => f.trim()),
-          badge: data.badge || null,
-        }),
+      return apiRequest('POST', '/api/services', {
+        ...data,
+        features: data.features.split('\n').filter(f => f.trim()),
+        badge: data.badge || null,
+        imageUrl: data.imageUrl || null,
       });
     },
     onSuccess: () => {
@@ -77,13 +80,11 @@ export default function AdminServices() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: ServiceFormData }) => {
-      return apiRequest(`/api/services/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          ...data,
-          features: data.features.split('\n').filter(f => f.trim()),
-          badge: data.badge || null,
-        }),
+      return apiRequest('PUT', `/api/services/${id}`, {
+        ...data,
+        features: data.features.split('\n').filter(f => f.trim()),
+        badge: data.badge || null,
+        imageUrl: data.imageUrl || null,
       });
     },
     onSuccess: () => {
@@ -99,7 +100,7 @@ export default function AdminServices() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      return apiRequest(`/api/services/${id}`, { method: 'DELETE' });
+      return apiRequest('DELETE', `/api/services/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/services'] });
@@ -119,7 +120,24 @@ export default function AdminServices() {
       features: service.features.join('\n'),
       badge: service.badge || '',
       icon: service.icon,
+      imageUrl: service.imageUrl || '',
     });
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setIsUploadingImage(true);
+    try {
+      const result = await uploadFileToCloudinary(file, 'services');
+      setFormData((prev) => ({ ...prev, imageUrl: result.url }));
+      toast({ title: 'Image uploaded', description: 'Image successfully uploaded to Cloudinary.' });
+    } catch (error) {
+      console.error(error);
+      toast({ title: 'Upload failed', description: 'Unable to upload image. Please try again.', variant: 'destructive' });
+    } finally {
+      setIsUploadingImage(false);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -146,12 +164,12 @@ export default function AdminServices() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Services Management</h1>
-            <p className="text-muted-foreground">Manage your service offerings</p>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Services Management</h1>
+            <p className="text-muted-foreground mt-1">Manage your service offerings</p>
           </div>
           <Dialog open={isAddDialogOpen || !!editingService} onOpenChange={handleDialogClose}>
             <DialogTrigger asChild>
-              <Button data-testid="button-add-service">
+              <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700" data-testid="button-add-service">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Service
               </Button>
@@ -218,13 +236,35 @@ export default function AdminServices() {
                     data-testid="input-icon"
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label>Service Image</Label>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={isUploadingImage}
+                    data-testid="input-image-file"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Upload a visual to display with this service. Supported formats: JPG, PNG.
+                  </p>
+                  {formData.imageUrl && (
+                    <div className="rounded-lg border bg-muted/30 p-3">
+                      <img
+                        src={formData.imageUrl}
+                        alt="Service preview"
+                        className="w-full h-48 object-cover rounded-md"
+                      />
+                    </div>
+                  )}
+                </div>
                 <Button 
                   type="submit" 
                   className="w-full" 
-                  disabled={createMutation.isPending || updateMutation.isPending}
+                  disabled={createMutation.isPending || updateMutation.isPending || isUploadingImage}
                   data-testid="button-submit-service"
                 >
-                  {(createMutation.isPending || updateMutation.isPending) 
+                  {(createMutation.isPending || updateMutation.isPending || isUploadingImage) 
                     ? 'Saving...' 
                     : editingService ? 'Update Service' : 'Create Service'}
                 </Button>
@@ -242,9 +282,9 @@ export default function AdminServices() {
         ) : services && services.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map((service) => (
-              <Card key={service.id} className="p-6 relative">
+              <Card key={service.id} className="p-6 relative border-2 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                 {service.badge && (
-                  <Badge className="absolute -top-2 right-4 bg-primary">{service.badge}</Badge>
+                  <Badge className="absolute -top-2 right-4 bg-gradient-to-r from-purple-600 to-blue-600">{service.badge}</Badge>
                 )}
                 <h3 className="text-xl font-semibold mb-2">{service.title}</h3>
                 <p className="text-sm text-muted-foreground mb-4">{service.description}</p>

@@ -18,7 +18,7 @@ export default function Footer({ onContactClick }: FooterProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
-            <div className="text-2xl font-bold bg-gradient-to-r from-primary to-ring bg-clip-text text-transparent mb-4">
+            <div className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent mb-4">
               JSMQ
             </div>
             <p className="text-sm text-muted-foreground mb-4">

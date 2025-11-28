@@ -1,12 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
 import PortfolioCard, { type Project } from './PortfolioCard';
 import { Skeleton } from '@/components/ui/skeleton';
-import ecommerceImg from '@assets/generated_images/E-commerce_website_portfolio_project_d9fee8dd.png';
-import dashboardImg from '@assets/generated_images/Business_dashboard_portfolio_project_e6fafc6a.png';
-import restaurantImg from '@assets/generated_images/Restaurant_website_portfolio_project_b5b3c229.png';
-import realEstateImg from '@assets/generated_images/Real_estate_website_portfolio_d3b0f561.png';
-import fitnessImg from '@assets/generated_images/Fitness_app_portfolio_project_c25ee79b.png';
-import corporateImg from '@assets/generated_images/Corporate_website_portfolio_project_0a20ad02.png';
+import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+const cloudinaryBase = 'https://res.cloudinary.com/demo/image/upload/v1699999999/jsmq';
 
 interface PortfolioProject {
   id: string;
@@ -24,42 +21,42 @@ const mockProjects: Project[] = [
       title: 'Modern E-Commerce Store',
       category: 'E-Commerce',
       description: 'Full-featured online shopping platform with payment integration and inventory management',
-      image: ecommerceImg,
+      image: `${cloudinaryBase}/ecommerce-store.png`,
     },
     {
       id: 'dashboard',
       title: 'Business Analytics Dashboard',
       category: 'Web Application',
       description: 'Real-time analytics dashboard with data visualization and reporting tools',
-      image: dashboardImg,
+      image: `${cloudinaryBase}/business-dashboard.png`,
     },
     {
       id: 'restaurant',
       title: 'Restaurant Website & Ordering',
       category: 'Food & Beverage',
       description: 'Elegant restaurant website with online ordering and reservation system',
-      image: restaurantImg,
+      image: `${cloudinaryBase}/restaurant.png`,
     },
     {
       id: 'realestate',
       title: 'Real Estate Platform',
       category: 'Real Estate',
       description: 'Property listing and search platform with advanced filtering capabilities',
-      image: realEstateImg,
+      image: `${cloudinaryBase}/real-estate.png`,
     },
     {
       id: 'fitness',
       title: 'Fitness & Wellness App',
       category: 'Health & Fitness',
       description: 'Mobile fitness application with workout tracking and nutrition planning',
-      image: fitnessImg,
+      image: `${cloudinaryBase}/fitness-app.png`,
     },
     {
       id: 'corporate',
       title: 'Corporate Services Website',
       category: 'Corporate',
       description: 'Professional corporate website showcasing services and team expertise',
-      image: corporateImg,
+      image: `${cloudinaryBase}/corporate.png`,
     },
   ];
 
@@ -68,22 +65,60 @@ export default function PortfolioSection() {
     queryKey: ['/api/portfolio'],
   });
 
+  const { ref: sectionRef, isInView } = useScrollAnimation({ threshold: 0.1 });
+
   // todo: remove mock functionality - convert API data to Project format or use fallback
   const displayProjects: Project[] = portfolioProjects && portfolioProjects.length > 0
     ? portfolioProjects.map(p => ({ ...p, image: p.imageUrl }))
     : mockProjects;
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 60, scale: 0.9 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: 0.7,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
+
   return (
-    <section id="portfolio" className="py-20 bg-accent">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6">
+    <section id="portfolio" className="py-24 bg-accent relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 opacity-5 pointer-events-none">
+        <div className="absolute top-1/4 right-0 w-96 h-96 bg-primary rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 left-0 w-96 h-96 bg-ring rounded-full blur-3xl" />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <motion.div
+          ref={sectionRef}
+          className="text-center mb-20"
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 tracking-tight">
             Our Portfolio
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Explore our recent projects and see how we've helped businesses transform their digital presence
           </p>
-        </div>
+        </motion.div>
 
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -92,11 +127,18 @@ export default function PortfolioSection() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            variants={containerVariants}
+            initial="hidden"
+            animate={isInView ? 'visible' : 'hidden'}
+          >
             {displayProjects.map((project) => (
-              <PortfolioCard key={project.id} project={project} />
+              <motion.div key={project.id} variants={itemVariants}>
+                <PortfolioCard project={project} />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
       </div>
     </section>

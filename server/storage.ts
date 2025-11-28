@@ -99,6 +99,7 @@ export class MemStorage implements IStorage {
     const service: Service = { 
       ...insertService,
       badge: insertService.badge ?? null,
+      imageUrl: insertService.imageUrl ?? null,
       id,
       createdAt: new Date()
     };
@@ -216,4 +217,41 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+import { MongoStorage } from './mongodb';
+
+// Initialize storage based on environment
+async function initStorage(): Promise<IStorage> {
+  const dbUrl = process.env.DATABASE_URL;
+  
+  if (dbUrl) {
+    console.log('Initializing MongoDB storage...');
+    const mongoStorage = new MongoStorage(dbUrl);
+    await mongoStorage.connect();
+    return mongoStorage;
+  } else {
+    console.log('Using in-memory storage (no DATABASE_URL found)');
+    return new MemStorage();
+  }
+}
+
+// Export a promise that resolves to the storage instance
+export const storagePromise = initStorage();
+
+// For backward compatibility, export a storage object that will be populated
+let storageInstance: IStorage;
+export const storage = new Proxy({} as IStorage, {
+  get(_target, prop) {
+    if (!storageInstance) {
+      throw new Error('Storage not initialized. Use await storagePromise first.');
+    }
+    return (storageInstance as any)[prop];
+  }
+});
+
+// Initialize the storage instance
+storagePromise.then(instance => {
+  storageInstance = instance;
+}).catch(err => {
+  console.error('Failed to initialize storage:', err);
+  process.exit(1);
+});

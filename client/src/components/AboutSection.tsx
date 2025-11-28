@@ -1,7 +1,11 @@
 import { Card } from '@/components/ui/card';
 import { Award, Users, Target, Lightbulb } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 
 export default function AboutSection() {
+  const { ref: sectionRef, isInView } = useScrollAnimation({ threshold: 0.2 });
+
   const values = [
     {
       icon: <Award className="w-8 h-8" />,
@@ -25,15 +29,68 @@ export default function AboutSection() {
     },
   ];
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, x: -30 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
+
   return (
-    <section id="about" className="py-20 bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-8">
+    <section id="about" className="py-24 bg-background relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 opacity-5 pointer-events-none">
+        <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-primary rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/3 w-96 h-96 bg-ring rounded-full blur-3xl" />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <motion.div
+            ref={sectionRef}
+            variants={containerVariants}
+            initial="hidden"
+            animate={isInView ? 'visible' : 'hidden'}
+          >
+            <motion.h2
+              variants={itemVariants}
+              className="text-4xl sm:text-5xl md:text-6xl font-bold mb-8 tracking-tight"
+            >
               About JSMQ
-            </h2>
-            <div className="space-y-5 text-xl text-foreground/80 leading-relaxed">
+            </motion.h2>
+            <motion.div
+              variants={itemVariants}
+              className="space-y-6 text-xl text-foreground/80 leading-relaxed"
+            >
               <p>
                 JSMQ is a leading web development agency based in Pakistan, specializing in creating 
                 modern, futuristic digital experiences that drive results for businesses worldwide.
@@ -48,24 +105,36 @@ export default function AboutSection() {
                 that not only look stunning but also perform exceptionally. Our commitment to quality and 
                 client satisfaction has earned us a 100% satisfaction rate.
               </p>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-2 gap-6"
+            variants={containerVariants}
+            initial="hidden"
+            animate={isInView ? 'visible' : 'hidden'}
+          >
             {values.map((value, index) => (
-              <Card key={index} className="p-6 hover-elevate transition-all duration-300" data-testid={`value-${index}`}>
-                <div className="text-primary mb-4">
-                  {value.icon}
-                </div>
-                <h3 className="text-lg font-semibold mb-2">
-                  {value.title}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {value.description}
-                </p>
-              </Card>
+              <motion.div
+                key={index}
+                variants={cardVariants}
+                whileHover={{ y: -8, scale: 1.02 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Card className="p-6 hover-elevate transition-all duration-300 h-full will-change-transform" data-testid={`value-${index}`}>
+                  <div className="text-primary mb-4 transition-transform duration-300 group-hover:scale-110">
+                    {value.icon}
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">
+                    {value.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {value.description}
+                  </p>
+                </Card>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

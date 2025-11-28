@@ -14,6 +14,7 @@ import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { CreditCard, Building2, Wallet, Check } from 'lucide-react';
 import type { Service } from './ServiceCard';
+import { formatPrice } from '@/lib/formatPrice';
 
 interface PaymentDialogProps {
   open: boolean;
@@ -26,6 +27,7 @@ type PaymentMethod = 'bank' | 'nayapay' | 'sadapay';
 export default function PaymentDialog({ open, onOpenChange, service }: PaymentDialogProps) {
   const { toast } = useToast();
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [customerInfo, setCustomerInfo] = useState({
     name: '',
     email: '',
@@ -65,6 +67,8 @@ export default function PaymentDialog({ open, onOpenChange, service }: PaymentDi
       return;
     }
 
+    setIsSubmitting(true);
+
     try {
       const response = await fetch('/api/orders', {
         method: 'POST',
@@ -73,6 +77,7 @@ export default function PaymentDialog({ open, onOpenChange, service }: PaymentDi
           serviceId: service.id,
           serviceTitle: service.title,
           servicePrice: service.price,
+          serviceIcon: service.icon,
           customerName: customerInfo.name,
           customerEmail: customerInfo.email,
           customerPhone: customerInfo.phone,
@@ -96,6 +101,8 @@ export default function PaymentDialog({ open, onOpenChange, service }: PaymentDi
         description: 'Failed to place order. Please try again.',
         variant: 'destructive',
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -118,7 +125,7 @@ export default function PaymentDialog({ open, onOpenChange, service }: PaymentDi
               </div>
               <div className="text-right">
                 <div className="text-2xl font-bold text-primary" data-testid="text-service-price">
-                  {service.price}
+                  {formatPrice(service.price)}
                 </div>
               </div>
             </div>
@@ -220,10 +227,10 @@ export default function PaymentDialog({ open, onOpenChange, service }: PaymentDi
             onClick={handleProceed}
             className="w-full"
             size="lg"
-            disabled={!customerInfo.name || !customerInfo.email || !customerInfo.phone}
+            disabled={!customerInfo.name || !customerInfo.email || !customerInfo.phone || isSubmitting}
             data-testid="button-proceed-payment"
           >
-            Proceed to Payment
+            {isSubmitting ? 'Processing...' : 'Proceed to Payment'}
           </Button>
         </div>
       </DialogContent>

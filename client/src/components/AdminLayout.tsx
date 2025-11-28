@@ -13,46 +13,46 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { ShoppingBag, Briefcase, FolderKanban, MessageSquare, LogOut } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Briefcase, FolderKanban, MessageSquare, LogOut } from 'lucide-react';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
-export default function AdminLayout({ children }: AdminLayoutProps) {
-  const [location, setLocation] = useLocation();
+import { useAdminAuth, logout } from '@/hooks/useAdminAuth';
 
-  useEffect(() => {
-    const isLoggedIn = localStorage.getItem('admin_logged_in');
-    if (!isLoggedIn && !location.startsWith('/admin/login')) {
-      setLocation('/admin/login');
-    }
-  }, [location, setLocation]);
+export default function AdminLayout({ children }: AdminLayoutProps) {
+  const [location] = useLocation();
+  useAdminAuth();
 
   const handleLogout = () => {
-    localStorage.removeItem('admin_logged_in');
-    setLocation('/admin/login');
+    logout();
   };
 
   const menuItems = [
     {
+      title: 'Dashboard',
+      url: '/aj-admin',
+      icon: LayoutDashboard,
+    },
+    {
       title: 'Orders',
-      url: '/admin/orders',
+      url: '/aj-admin/orders',
       icon: ShoppingBag,
     },
     {
       title: 'Services',
-      url: '/admin/services',
+      url: '/aj-admin/services',
       icon: Briefcase,
     },
     {
       title: 'Portfolio',
-      url: '/admin/portfolio',
+      url: '/aj-admin/portfolio',
       icon: FolderKanban,
     },
     {
       title: 'Messages',
-      url: '/admin/messages',
+      url: '/aj-admin/messages',
       icon: MessageSquare,
     },
   ];
@@ -66,12 +66,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     <SidebarProvider style={style as React.CSSProperties}>
       <div className="flex h-screen w-full">
         <Sidebar>
-          <SidebarContent>
+          <SidebarContent className="bg-gradient-to-b from-background to-accent/20">
             <SidebarGroup>
-              <SidebarGroupLabel className="text-lg font-bold bg-gradient-to-r from-primary to-ring bg-clip-text text-transparent mb-2">
-                JSMQ Admin
-              </SidebarGroupLabel>
-              <SidebarGroupContent>
+              <div className="p-4 mb-2">
+                <SidebarGroupLabel className="text-2xl font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  JSMQ Admin
+                </SidebarGroupLabel>
+                <p className="text-xs text-muted-foreground mt-1">Business Management</p>
+              </div>
+              <SidebarGroupContent className="px-2">
                 <SidebarMenu>
                   {menuItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
@@ -87,11 +90,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               </SidebarGroupContent>
             </SidebarGroup>
 
-            <div className="mt-auto p-4">
+            <div className="mt-auto p-4 border-t">
               <Button
                 onClick={handleLogout}
                 variant="outline"
-                className="w-full"
+                className="w-full hover:bg-destructive hover:text-destructive-foreground transition-colors"
                 data-testid="button-logout"
               >
                 <LogOut className="w-4 h-4 mr-2" />
@@ -102,10 +105,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </Sidebar>
 
         <div className="flex flex-col flex-1 overflow-hidden">
-          <header className="flex items-center justify-between p-4 border-b">
+          <header className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-background via-accent/10 to-background shadow-sm">
             <SidebarTrigger data-testid="button-sidebar-toggle" />
+            <div className="text-sm text-muted-foreground">
+              Welcome, Admin
+            </div>
           </header>
-          <main className="flex-1 overflow-auto p-6">
+          <main className="flex-1 overflow-auto p-8 bg-gradient-to-br from-background via-accent/5 to-background">
             {children}
           </main>
         </div>

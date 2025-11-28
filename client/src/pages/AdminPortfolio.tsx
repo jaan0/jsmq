@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient, apiRequest } from '@/lib/queryClient';
+import { uploadFileToCloudinary } from '@/lib/upload';
 import AdminLayout from '@/components/AdminLayout';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,6 +19,7 @@ interface PortfolioProject {
   category: string;
   description: string;
   imageUrl: string;
+  projectUrl?: string;
 }
 
 type ProjectFormData = {
@@ -25,6 +27,7 @@ type ProjectFormData = {
   category: string;
   description: string;
   imageUrl: string;
+  projectUrl?: string;
 };
 
 export default function AdminPortfolio() {
@@ -36,22 +39,21 @@ export default function AdminPortfolio() {
     category: '',
     description: '',
     imageUrl: '',
+    projectUrl: '',
   });
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const { data: projects, isLoading } = useQuery<PortfolioProject[]>({
     queryKey: ['/api/portfolio'],
   });
 
   const resetForm = () => {
-    setFormData({ title: '', category: '', description: '', imageUrl: '' });
+    setFormData({ title: '', category: '', description: '', imageUrl: '', projectUrl: '' });
   };
 
   const createMutation = useMutation({
     mutationFn: async (data: ProjectFormData) => {
-      return apiRequest('/api/portfolio', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
+      return apiRequest('POST', '/api/portfolio', data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/portfolio'] });
@@ -66,10 +68,7 @@ export default function AdminPortfolio() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: ProjectFormData }) => {
-      return apiRequest(`/api/portfolio/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(data),
-      });
+      return apiRequest('PUT', `/api/portfolio/${id}`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/portfolio'] });
@@ -84,7 +83,7 @@ export default function AdminPortfolio() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      return apiRequest(`/api/portfolio/${id}`, { method: 'DELETE' });
+      return apiRequest('DELETE', `/api/portfolio/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/portfolio'] });
@@ -102,6 +101,7 @@ export default function AdminPortfolio() {
       category: project.category,
       description: project.description,
       imageUrl: project.imageUrl,
+      projectUrl: project.projectUrl || '',
     });
   };
 
@@ -111,6 +111,22 @@ export default function AdminPortfolio() {
       updateMutation.mutate({ id: editingProject.id, data: formData });
     } else {
       createMutation.mutate(formData);
+    }
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setIsUploadingImage(true);
+    try {
+      const result = await uploadFileToCloudinary(file, 'portfolio');
+      setFormData((prev) => ({ ...prev, imageUrl: result.url }));
+      toast({ title: 'Image uploaded', description: 'Image successfully uploaded to Cloudinary.' });
+    } catch (error) {
+      console.error(error);
+      toast({ title: 'Upload failed', description: 'Unable to upload image. Please try again.', variant: 'destructive' });
+    } finally {
+      setIsUploadingImage(false);
     }
   };
 
@@ -129,12 +145,12 @@ export default function AdminPortfolio() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Portfolio Management</h1>
-            <p className="text-muted-foreground">Manage your portfolio projects</p>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Portfolio Management</h1>
+            <p className="text-muted-foreground mt-1">Manage your portfolio projects</p>
           </div>
           <Dialog open={isAddDialogOpen || !!editingProject} onOpenChange={handleDialogClose}>
             <DialogTrigger asChild>
-              <Button data-testid="button-add-project">
+              <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700" data-testid="button-add-project">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Project
               </Button>
@@ -173,22 +189,47 @@ export default function AdminPortfolio() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Image URL</Label>
+                  <Label>Project URL (Optional)</Label>
                   <Input
-                    value={formData.imageUrl}
-                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                    placeholder="https://example.com/image.jpg"
-                    required
-                    data-testid="input-imageUrl"
+                    value={formData.projectUrl}
+                    onChange={(e) => setFormData({ ...formData, projectUrl: e.target.value })}
+                    placeholder="https://example.com"
+                    type="url"
+                    data-testid="input-project-url"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Add a link to the live project or demo.
+                  </p>
                 </div>
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  disabled={createMutation.isPending || updateMutation.isPending}
+                <div className="space-y-2">
+                  <Label>Project Image</Label>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={isUploadingImage}
+                    data-testid="input-project-file"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Upload a screenshot or cover image for this project.
+                  </p>
+                  {formData.imageUrl && (
+                    <div className="rounded-lg border bg-muted/30 p-3">
+                      <img
+                        src={formData.imageUrl}
+                        alt="Project preview"
+                        className="w-full h-48 object-cover rounded-md"
+                      />
+                    </div>
+                  )}
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={createMutation.isPending || updateMutation.isPending || isUploadingImage || !formData.imageUrl}
                   data-testid="button-submit-project"
                 >
-                  {(createMutation.isPending || updateMutation.isPending)
+                  {(createMutation.isPending || updateMutation.isPending || isUploadingImage)
                     ? 'Saving...'
                     : editingProject ? 'Update Project' : 'Create Project'}
                 </Button>
@@ -206,8 +247,8 @@ export default function AdminPortfolio() {
         ) : projects && projects.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project) => (
-              <Card key={project.id} className="overflow-hidden">
-                <div className="aspect-[4/3] overflow-hidden">
+              <Card key={project.id} className="overflow-hidden border-2 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                <div className="aspect-[4/3] overflow-hidden bg-gradient-to-br from-purple-50 to-blue-50">
                   <img
                     src={project.imageUrl}
                     alt={project.title}

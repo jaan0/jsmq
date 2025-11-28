@@ -26,7 +26,7 @@ export default function AdminMessages() {
 
   const markAsReadMutation = useMutation({
     mutationFn: async (id: string) => {
-      return apiRequest(`/api/contact-messages/${id}/read`, { method: 'PATCH' });
+      return apiRequest('PATCH', `/api/contact-messages/${id}/read`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/contact-messages'] });
@@ -41,8 +41,8 @@ export default function AdminMessages() {
     <AdminLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Contact Messages</h1>
-          <p className="text-muted-foreground">View and manage customer inquiries</p>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Contact Messages</h1>
+          <p className="text-muted-foreground mt-1">View and manage customer inquiries</p>
         </div>
 
         {isLoading ? (
@@ -54,7 +54,7 @@ export default function AdminMessages() {
         ) : messages && messages.length > 0 ? (
           <div className="space-y-4">
             {messages.map((message) => (
-              <Card key={message.id} className={`p-6 ${message.read ? 'opacity-60' : ''}`}>
+              <Card key={message.id} className={`p-6 border-2 hover:shadow-lg transition-all ${message.read ? 'opacity-60' : 'border-purple-200'}`}>
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h3 className="text-lg font-semibold">{message.name}</h3>

@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import AdminLayout from '@/components/AdminLayout';
+import { formatPrice } from '@/lib/formatPrice';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -46,12 +48,20 @@ export default function AdminOrders() {
     statusFilter === 'all' || order.status === statusFilter
   );
 
+  const getStatusColor = (status: string) => {
+    const colors: Record<string, string> = {
+      pending: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+      confirmed: 'bg-blue-100 text-blue-800 border-blue-300',
+      'in-progress': 'bg-purple-100 text-purple-800 border-purple-300',
+      completed: 'bg-green-100 text-green-800 border-green-300',
+      cancelled: 'bg-red-100 text-red-800 border-red-300',
+    };
+    return colors[status] || colors.pending;
+  };
+
   const updateStatusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      return apiRequest(`/api/orders/${id}/status`, {
-        method: 'PATCH',
-        body: JSON.stringify({ status }),
-      });
+      return apiRequest('PATCH', `/api/orders/${id}/status`, { status });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/orders'] });
@@ -69,27 +79,16 @@ export default function AdminOrders() {
     },
   });
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending': return 'bg-yellow-500';
-      case 'confirmed': return 'bg-blue-500';
-      case 'in-progress': return 'bg-purple-500';
-      case 'completed': return 'bg-green-500';
-      case 'cancelled': return 'bg-red-500';
-      default: return 'bg-gray-500';
-    }
-  };
-
   return (
     <AdminLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Orders Management</h1>
-            <p className="text-muted-foreground">View and manage customer orders</p>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Orders Management</h1>
+            <p className="text-muted-foreground mt-1">View and manage customer orders</p>
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-48" data-testid="select-filter-status">
+            <SelectTrigger className="w-48 border-2" data-testid="select-filter-status">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
@@ -103,7 +102,7 @@ export default function AdminOrders() {
           </Select>
         </div>
 
-        <Card className="p-6">
+        <Card className="p-6 border-2 shadow-lg">
           {isLoading ? (
             <div className="space-y-3">
               {[...Array(5)].map((_, i) => (
@@ -134,7 +133,7 @@ export default function AdminOrders() {
                       </div>
                     </TableCell>
                     <TableCell>{order.serviceTitle}</TableCell>
-                    <TableCell className="font-semibold text-primary">{order.servicePrice}</TableCell>
+                    <TableCell className="font-semibold text-primary">{formatPrice(order.servicePrice)}</TableCell>
                     <TableCell className="capitalize">{order.paymentMethod}</TableCell>
                     <TableCell>
                       <Badge className={getStatusColor(order.status)}>
