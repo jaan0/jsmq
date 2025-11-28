@@ -18,7 +18,7 @@ export default function Hero({ onContactClick }: HeroProps) {
             </div>
 
             {/* Content */}
-            <div className="relative z-10 container mx-auto px-4 text-center">
+            <div className="relative z-10 container mx-auto px-4 text-center pt-32 pb-24">
                 <div className="max-w-4xl mx-auto space-y-8 animate-fade-in-up">
                     {/* Badge */}
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20">
@@ -29,7 +29,7 @@ export default function Hero({ onContactClick }: HeroProps) {
                     </div>
 
                     {/* Heading */}
-                    <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight">
+                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight">
                         Transform Your Digital
                         <br />
                         <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
@@ -38,7 +38,7 @@ export default function Hero({ onContactClick }: HeroProps) {
                     </h1>
 
                     {/* Subheading */}
-                    <p className="text-xl md:text-2xl text-white/80 max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-lg md:text-2xl text-white/80 max-w-2xl mx-auto leading-relaxed">
                         We create stunning, high-performance websites and digital solutions
                         that help your business grow and succeed in the modern world.
                     </p>
@@ -48,7 +48,7 @@ export default function Hero({ onContactClick }: HeroProps) {
                         <Button
                             size="lg"
                             onClick={onContactClick}
-                            className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-6 text-lg rounded-full glow-on-hover group"
+                            className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-8 py-6 text-lg rounded-full glow-on-hover group"
                         >
                             Start Your Project
                             <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -56,7 +56,7 @@ export default function Hero({ onContactClick }: HeroProps) {
                         <Button
                             size="lg"
                             variant="outline"
-                            className="border-2 border-white/30 text-white hover:bg-white/10 px-8 py-6 text-lg rounded-full backdrop-blur-sm"
+                            className="w-full sm:w-auto border-2 border-white/30 text-white hover:bg-white/10 px-8 py-6 text-lg rounded-full backdrop-blur-sm"
                             onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
                         >
                             View Services
@@ -64,16 +64,16 @@ export default function Hero({ onContactClick }: HeroProps) {
                     </div>
 
                     {/* Stats */}
-                    <div className="grid grid-cols-3 gap-8 pt-12 max-w-2xl mx-auto">
-                        <div className="text-center">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 pt-12 max-w-2xl mx-auto">
+                        <div className="text-center p-4 sm:p-0 bg-white/5 sm:bg-transparent rounded-2xl sm:rounded-none backdrop-blur-sm sm:backdrop-blur-none border border-white/10 sm:border-none">
                             <div className="text-3xl md:text-4xl font-bold text-white">500+</div>
                             <div className="text-white/70 text-sm md:text-base mt-1">Projects Completed</div>
                         </div>
-                        <div className="text-center">
+                        <div className="text-center p-4 sm:p-0 bg-white/5 sm:bg-transparent rounded-2xl sm:rounded-none backdrop-blur-sm sm:backdrop-blur-none border border-white/10 sm:border-none">
                             <div className="text-3xl md:text-4xl font-bold text-white">98%</div>
                             <div className="text-white/70 text-sm md:text-base mt-1">Client Satisfaction</div>
                         </div>
-                        <div className="text-center">
+                        <div className="text-center p-4 sm:p-0 bg-white/5 sm:bg-transparent rounded-2xl sm:rounded-none backdrop-blur-sm sm:backdrop-blur-none border border-white/10 sm:border-none">
                             <div className="text-3xl md:text-4xl font-bold text-white">24/7</div>
                             <div className="text-white/70 text-sm md:text-base mt-1">Support Available</div>
                         </div>

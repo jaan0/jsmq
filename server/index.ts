@@ -49,13 +49,17 @@ app.use((req, res, next) => {
   next();
 });
 
+let server: any = null;
+
 // Export setup function for Vercel
 export const setupApp = async () => {
+  if (server) return server;
+
   // Wait for storage to initialize
   await storagePromise;
   log('Storage initialized successfully');
 
-  const server = await registerRoutes(app);
+  server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

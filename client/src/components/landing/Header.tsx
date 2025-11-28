@@ -37,9 +37,9 @@ export default function Header({ onContactClick }: HeaderProps) {
 
     return (
         <header
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-                    ? "bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-lg"
-                    : "bg-transparent"
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled || isMobileMenuOpen
+                ? "bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-lg"
+                : "bg-transparent"
                 }`}
         >
             <div className="container mx-auto px-4">
