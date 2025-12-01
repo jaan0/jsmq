@@ -8,6 +8,7 @@ import {
   insertContactMessageSchema,
   updateOrderStatusSchema,
 } from "@shared/schema.ts";
+import { updateSiteSettingsSchema } from "@shared/siteSettings.ts";
 import { sendOrderConfirmationEmail } from "./email.ts";
 import multer from "multer";
 import { uploadBufferToCloudinary } from "./cloudinary.ts";
@@ -243,13 +244,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/contact-messages/:id/read", async (req, res) => {
     try {
-      const marked = await storage.markMessageAsRead(req.params.id);
-      if (!marked) {
+      const success = await storage.markMessageAsRead(req.params.id);
+      if (!success) {
         return res.status(404).json({ error: "Message not found" });
       }
-      res.status(204).send();
+      res.json({ success: true });
     } catch (error) {
+      console.error("Failed to mark message as read:", error);
       res.status(500).json({ error: "Failed to mark message as read" });
+    }
+  });
+
+  // Site Settings routes
+  app.get("/api/site-settings", async (req, res) => {
+    try {
+      const settings = await storage.getSiteSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error("Failed to fetch site settings:", error);
+      res.status(500).json({ error: "Failed to fetch site settings" });
+    }
+  });
+
+  app.put("/api/site-settings", async (req, res) => {
+    try {
+      // Admin-only endpoint (authentication should be added via middleware)
+      const parsed = updateSiteSettingsSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: parsed.error });
+      }
+      const updated = await storage.updateSiteSettings(parsed.data);
+      res.json(updated);
+    } catch (error) {
+      console.error("Failed to update site settings:", error);
+      res.status(500).json({ error: "Failed to update site settings" });
     }
   });
 

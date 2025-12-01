@@ -1,14 +1,15 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils.ts";
+import { Button } from "@/components/ui/button.tsx";
+import { ScrollArea } from "@/components/ui/scroll-area.tsx";
 import {
     LayoutDashboard,
     Briefcase,
     FolderKanban,
     ShoppingCart,
     MessageSquare,
+    Settings,
     LogOut,
     Menu,
     X,
@@ -20,11 +21,12 @@ interface AdminLayoutProps {
 }
 
 const navigation = [
-    { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-    { name: "Services", href: "/admin/services", icon: Briefcase },
-    { name: "Portfolio", href: "/admin/portfolio", icon: FolderKanban },
-    { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
-    { name: "Messages", href: "/admin/messages", icon: MessageSquare },
+    { name: "Dashboard", href: "/aj-admin", icon: LayoutDashboard },
+    { name: "Services", href: "/aj-admin/services", icon: Briefcase },
+    { name: "Portfolio", href: "/aj-admin/portfolio", icon: FolderKanban },
+    { name: "Orders", href: "/aj-admin/orders", icon: ShoppingCart },
+    { name: "Messages", href: "/aj-admin/messages", icon: MessageSquare },
+    { name: "Site Settings", href: "/aj-admin/site-settings", icon: Settings },
 ];
 
 export default function AdminLayout({ children }: AdminLayoutProps) {

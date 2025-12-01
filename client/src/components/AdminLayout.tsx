@@ -13,7 +13,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, ShoppingBag, Briefcase, FolderKanban, MessageSquare, LogOut } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Briefcase, FolderKanban, MessageSquare, Settings, LogOut } from 'lucide-react';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -54,6 +54,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       title: 'Messages',
       url: '/aj-admin/messages',
       icon: MessageSquare,
+    },
+    {
+      title: 'Site Settings',
+      url: '/aj-admin/site-settings',
+      icon: Settings,
     },
   ];
 

@@ -31,7 +31,7 @@ export default function Landing() {
                 <Services onContactClick={handleContactClick} />
             </div>
             <div id="features">
-                <Features />
+                <Features onContactClick={() => handleContactClick()} />
             </div>
             <div id="portfolio">
                 <Portfolio />

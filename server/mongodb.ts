@@ -12,6 +12,11 @@ import {
   type InsertContactMessage,
   type UpdateOrderStatus
 } from "@shared/schema.ts";
+import {
+  type SiteSettings,
+  type UpdateSiteSettings,
+  defaultSiteSettings
+} from "@shared/siteSettings.ts";
 import { IStorage } from "./storage.ts";
 
 export class MongoStorage implements IStorage {
@@ -242,5 +247,60 @@ export class MongoStorage implements IStorage {
       { $set: { read: true } }
     );
     return result.modifiedCount > 0;
+  }
+
+  // Site Settings methods
+  async getSiteSettings(): Promise<SiteSettings | null> {
+    const db = this.getDb();
+    const settings = await db.collection('siteSettings').findOne({});
+
+    if (!settings) {
+      // Initialize with defaults on first access
+      const initialized = await this.updateSiteSettings(defaultSiteSettings);
+      return initialized;
+    }
+
+    const { _id, ...rest } = settings;
+    return { ...rest, id: _id.toString() } as SiteSettings;
+  }
+
+  async updateSiteSettings(data: UpdateSiteSettings): Promise<SiteSettings> {
+    const db = this.getDb();
+    const collection = db.collection('siteSettings');
+
+    // Check if settings exist
+    const existing = await collection.findOne({});
+
+    if (!existing) {
+      // Create new settings with defaults merged with provided data
+      const newSettings = {
+        ...defaultSiteSettings,
+        ...data,
+        updatedAt: new Date(),
+      };
+
+      const result = await collection.insertOne(newSettings);
+      return {
+        ...newSettings,
+        id: result.insertedId.toString(),
+      } as SiteSettings;
+    }
+
+    // Update existing settings
+    const updated = {
+      ...data,
+      updatedAt: new Date(),
+    };
+
+    await collection.updateOne(
+      { _id: existing._id },
+      { $set: updated }
+    );
+
+    const updatedDoc = await collection.findOne({ _id: existing._id });
+    if (!updatedDoc) throw new Error('Failed to retrieve updated settings');
+
+    const { _id, ...rest } = updatedDoc;
+    return { ...rest, id: _id.toString() } as SiteSettings;
   }
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
+import { Link, useLocation } from "wouter";
+import { Button } from "@/components/ui/button.tsx";
 import { Menu, X } from "lucide-react";
 
 interface HeaderProps {
@@ -8,6 +8,7 @@ interface HeaderProps {
 }
 
 export default function Header({ onContactClick }: HeaderProps) {
+    const [location, setLocation] = useLocation();
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -28,6 +29,11 @@ export default function Header({ onContactClick }: HeaderProps) {
     ];
 
     const scrollToSection = (href: string) => {
+        if (href === "#home" && location !== "/") {
+            setLocation("/");
+            setIsMobileMenuOpen(false);
+            return;
+        }
         const element = document.querySelector(href);
         if (element) {
             element.scrollIntoView({ behavior: "smooth" });
