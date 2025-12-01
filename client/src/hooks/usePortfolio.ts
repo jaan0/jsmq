@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { PortfolioProject, InsertPortfolioProject } from '@shared/schema';
+import type { PortfolioProject, InsertPortfolioProject } from '@shared/schema.ts';
 
 const API_BASE = '/api';
 

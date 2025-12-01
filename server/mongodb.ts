@@ -1,6 +1,6 @@
 import { MongoClient, Db, ObjectId } from 'mongodb';
-import { 
-  type User, 
+import {
+  type User,
   type InsertUser,
   type Service,
   type InsertService,
@@ -11,8 +11,8 @@ import {
   type ContactMessage,
   type InsertContactMessage,
   type UpdateOrderStatus
-} from "@shared/schema";
-import { IStorage } from "./storage";
+} from "@shared/schema.ts";
+import { IStorage } from "./storage.ts";
 
 export class MongoStorage implements IStorage {
   private client: MongoClient;
@@ -134,6 +134,7 @@ export class MongoStorage implements IStorage {
     const db = this.getDb();
     const project = {
       ...insertProject,
+      projectUrl: insertProject.projectUrl ?? null,
       createdAt: new Date()
     };
     const result = await db.collection('portfolio').insertOne(project);

@@ -7,7 +7,7 @@ import {
   insertOrderSchema,
   insertContactMessageSchema,
   updateOrderStatusSchema,
-} from "@shared/schema";
+} from "@shared/schema.ts";
 import { sendOrderConfirmationEmail } from "./email.ts";
 import multer from "multer";
 import { uploadBufferToCloudinary } from "./cloudinary.ts";
