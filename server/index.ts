@@ -79,7 +79,9 @@ if (!process.env.VERCEL) {
 
     if (app.get("env") === "development") {
       // Dynamic import to avoid loading Vite in production
-      const { setupVite } = await import("./vite.ts");
+      // Using a variable prevents esbuild from bundling this dependency
+      const vitePath = "./vite.ts";
+      const { setupVite } = await import(vitePath);
       await setupVite(app, server);
     } else {
       serveStatic(app);
