@@ -1,6 +1,7 @@
-import app, { setupApp } from '../server/index';
+import { IncomingMessage, ServerResponse } from 'http';
+import app, { setupApp } from '../server/index.ts';
 
-export default async function handler(req, res) {
+export default async function handler(req: IncomingMessage, res: ServerResponse) {
     // Ensure app is initialized
     await setupApp();
 
