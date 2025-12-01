@@ -1,5 +1,5 @@
-import { 
-  type User, 
+import {
+  type User,
   type InsertUser,
   type Service,
   type InsertService,
@@ -17,24 +17,24 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  
+
   getAllServices(): Promise<Service[]>;
   getService(id: string): Promise<Service | undefined>;
   createService(service: InsertService): Promise<Service>;
   updateService(id: string, service: Partial<InsertService>): Promise<Service | undefined>;
   deleteService(id: string): Promise<boolean>;
-  
+
   getAllPortfolioProjects(): Promise<PortfolioProject[]>;
   getPortfolioProject(id: string): Promise<PortfolioProject | undefined>;
   createPortfolioProject(project: InsertPortfolioProject): Promise<PortfolioProject>;
   updatePortfolioProject(id: string, project: Partial<InsertPortfolioProject>): Promise<PortfolioProject | undefined>;
   deletePortfolioProject(id: string): Promise<boolean>;
-  
+
   getAllOrders(): Promise<Order[]>;
   getOrder(id: string): Promise<Order | undefined>;
   createOrder(order: InsertOrder): Promise<Order>;
   updateOrderStatus(id: string, update: UpdateOrderStatus): Promise<Order | undefined>;
-  
+
   getAllContactMessages(): Promise<ContactMessage[]>;
   getContactMessage(id: string): Promise<ContactMessage | undefined>;
   createContactMessage(message: InsertContactMessage): Promise<ContactMessage>;
@@ -54,7 +54,7 @@ export class MemStorage implements IStorage {
     this.portfolioProjects = new Map();
     this.orders = new Map();
     this.contactMessages = new Map();
-    
+
     this.seedInitialData();
   }
 
@@ -85,7 +85,7 @@ export class MemStorage implements IStorage {
   }
 
   async getAllServices(): Promise<Service[]> {
-    return Array.from(this.services.values()).sort((a, b) => 
+    return Array.from(this.services.values()).sort((a, b) =>
       new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
     );
   }
@@ -96,7 +96,7 @@ export class MemStorage implements IStorage {
 
   async createService(insertService: InsertService): Promise<Service> {
     const id = randomUUID();
-    const service: Service = { 
+    const service: Service = {
       ...insertService,
       badge: insertService.badge ?? null,
       imageUrl: insertService.imageUrl ?? null,
@@ -110,7 +110,7 @@ export class MemStorage implements IStorage {
   async updateService(id: string, updates: Partial<InsertService>): Promise<Service | undefined> {
     const existing = this.services.get(id);
     if (!existing) return undefined;
-    
+
     const updated = { ...existing, ...updates };
     this.services.set(id, updated);
     return updated;
@@ -121,7 +121,7 @@ export class MemStorage implements IStorage {
   }
 
   async getAllPortfolioProjects(): Promise<PortfolioProject[]> {
-    return Array.from(this.portfolioProjects.values()).sort((a, b) => 
+    return Array.from(this.portfolioProjects.values()).sort((a, b) =>
       new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
     );
   }
@@ -132,8 +132,9 @@ export class MemStorage implements IStorage {
 
   async createPortfolioProject(insertProject: InsertPortfolioProject): Promise<PortfolioProject> {
     const id = randomUUID();
-    const project: PortfolioProject = { 
-      ...insertProject, 
+    const project: PortfolioProject = {
+      ...insertProject,
+      projectUrl: insertProject.projectUrl ?? null,
       id,
       createdAt: new Date()
     };
@@ -144,7 +145,7 @@ export class MemStorage implements IStorage {
   async updatePortfolioProject(id: string, updates: Partial<InsertPortfolioProject>): Promise<PortfolioProject | undefined> {
     const existing = this.portfolioProjects.get(id);
     if (!existing) return undefined;
-    
+
     const updated = { ...existing, ...updates };
     this.portfolioProjects.set(id, updated);
     return updated;
@@ -155,7 +156,7 @@ export class MemStorage implements IStorage {
   }
 
   async getAllOrders(): Promise<Order[]> {
-    return Array.from(this.orders.values()).sort((a, b) => 
+    return Array.from(this.orders.values()).sort((a, b) =>
       new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
     );
   }
@@ -166,7 +167,7 @@ export class MemStorage implements IStorage {
 
   async createOrder(insertOrder: InsertOrder): Promise<Order> {
     const id = randomUUID();
-    const order: Order = { 
+    const order: Order = {
       ...insertOrder,
       id,
       status: 'pending',
@@ -179,14 +180,14 @@ export class MemStorage implements IStorage {
   async updateOrderStatus(id: string, update: UpdateOrderStatus): Promise<Order | undefined> {
     const existing = this.orders.get(id);
     if (!existing) return undefined;
-    
+
     const updated = { ...existing, ...update };
     this.orders.set(id, updated);
     return updated;
   }
 
   async getAllContactMessages(): Promise<ContactMessage[]> {
-    return Array.from(this.contactMessages.values()).sort((a, b) => 
+    return Array.from(this.contactMessages.values()).sort((a, b) =>
       new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
     );
   }
@@ -197,7 +198,7 @@ export class MemStorage implements IStorage {
 
   async createContactMessage(insertMessage: InsertContactMessage): Promise<ContactMessage> {
     const id = randomUUID();
-    const message: ContactMessage = { 
+    const message: ContactMessage = {
       ...insertMessage,
       id,
       read: false,
@@ -210,19 +211,19 @@ export class MemStorage implements IStorage {
   async markMessageAsRead(id: string): Promise<boolean> {
     const message = this.contactMessages.get(id);
     if (!message) return false;
-    
+
     message.read = true;
     this.contactMessages.set(id, message);
     return true;
   }
 }
 
-import { MongoStorage } from './mongodb';
+import { MongoStorage } from './mongodb.ts';
 
 // Initialize storage based on environment
 async function initStorage(): Promise<IStorage> {
   const dbUrl = process.env.DATABASE_URL;
-  
+
   if (dbUrl) {
     console.log('Initializing MongoDB storage...');
     const mongoStorage = new MongoStorage(dbUrl);
