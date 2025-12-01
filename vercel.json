@@ -3,16 +3,23 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/index.ts"
+      "destination": "/api/index.js"
     },
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "version": 2,
+      "rewrites": [
+        {
+          "source": "/api/(.*)",
+          "destination": "/api/index.ts"
+        },
+        {
+          "source": "/(.*)",
+          "destination": "/index.html"
+        }
+      ],
+      "functions": {
+        "api/index.js": {
+          "includeFiles": "dist/**, server/**, shared/**"
+        }
+      }
     }
-  ],
-  "functions": {
-    "api/index.ts": {
-      "includeFiles": "dist/**, server/**, shared/**"
-    }
-  }
-}
