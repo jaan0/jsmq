@@ -1,6 +1,6 @@
 import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage } from "./storage.ts";
 import {
   insertServiceSchema,
   insertPortfolioProjectSchema,
@@ -8,9 +8,9 @@ import {
   insertContactMessageSchema,
   updateOrderStatusSchema,
 } from "@shared/schema";
-import { sendOrderConfirmationEmail } from "./email";
+import { sendOrderConfirmationEmail } from "./email.ts";
 import multer from "multer";
-import { uploadBufferToCloudinary } from "./cloudinary";
+import { uploadBufferToCloudinary } from "./cloudinary.ts";
 
 // Extend Express Request to include multer file
 interface MulterRequest extends Request {
@@ -186,7 +186,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { serviceIcon, ...orderData } = req.body;
       const validated = insertOrderSchema.parse(orderData);
       const order = await storage.createOrder(validated);
-      
+
       // Send confirmation email to customer
       try {
         await sendOrderConfirmationEmail({
@@ -201,7 +201,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Log email error but don't fail the order creation
         console.error('Failed to send confirmation email:', emailError);
       }
-      
+
       res.status(201).json(order);
     } catch (error) {
       res.status(400).json({ error: "Invalid order data" });

@@ -1,9 +1,9 @@
 import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
-import { log } from "./utils";
-import { serveStatic } from "./static";
-import { storagePromise } from "./storage";
+import { registerRoutes } from "./routes.ts";
+import { log } from "./utils.ts";
+import { serveStatic } from "./static.ts";
+import { storagePromise } from "./storage.ts";
 
 const app = express();
 
@@ -79,7 +79,7 @@ if (!process.env.VERCEL) {
 
     if (app.get("env") === "development") {
       // Dynamic import to avoid loading Vite in production
-      const { setupVite } = await import("./vite");
+      const { setupVite } = await import("./vite.ts");
       await setupVite(app, server);
     } else {
       serveStatic(app);
